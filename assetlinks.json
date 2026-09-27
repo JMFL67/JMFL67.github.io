@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.jmfl67.twa",
+        "sha256_cert_fingerprints": ["02:36:39:B4:6A:5D:C8:35:8C:4B:61:4B:B0:84:A2:19:51:41:C6:19:5E:74:CA:08:54:27:AD:2D:C5:31:2E:29"]
+      }
+    }]
