@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fogão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#4B5320">
+<style>
+:root{
+  --cream:#FBF7EF; --paper:#FFFFFF; --ink:#2A2420; --ink-soft:#6B6055;
+  --olive:#4B5320; --brick:#B23A24; --sage:#8FA35E; --line:#E4DCC9;
+  --chip:#F1EADA;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --cream:#1C1914; --paper:#252019; --ink:#F3ECDF; --ink-soft:#B7AC9B;
+    --olive:#B7C285; --brick:#E07A56; --sage:#8FA35E; --line:#3A3327; --chip:#2E2A21;
+  }
+}
+:root[data-theme="dark"]{
+  --cream:#1C1914; --paper:#252019; --ink:#F3ECDF; --ink-soft:#B7AC9B;
+  --olive:#B7C285; --brick:#E07A56; --sage:#8FA35E; --line:#3A3327; --chip:#2E2A21;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%;}
+body{
+  margin:0; height:100%; background:var(--cream); color:var(--ink);
+  font-family:'Inter',system-ui,sans-serif; -webkit-tap-highlight-color:transparent;
+  display:flex; flex-direction:column;
+}
+h1,h2,h3,.brand,.tabbar span{font-family:'Space Grotesk',system-ui,sans-serif;}
+
+header{
+  padding:calc(18px + env(safe-area-inset-top,0px)) 20px 14px;
+  background:var(--olive); color:var(--cream); flex-shrink:0;
+}
+.brand{font-size:1.5rem; font-weight:700; margin:0 0 12px; display:flex; align-items:center; gap:8px;}
+.brand svg{width:26px; height:26px; flex-shrink:0;}
+.searchwrap{position:relative;}
+.searchwrap input{
+  width:100%; padding:12px 14px 12px 40px; border-radius:12px; border:none;
+  font-size:1rem; font-family:inherit; background:var(--paper); color:var(--ink);
+}
+.searchwrap svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); width:18px; height:18px; opacity:.55;}
+
+main{flex:1; overflow-y:auto; padding:16px 16px calc(90px + env(safe-area-inset-bottom,0px));}
+
+.view{display:none;}
+.view.active{display:block;}
+
+.recipe{
+  background:var(--paper); border:1px solid var(--line); border-radius:14px;
+  margin-bottom:12px; overflow:hidden;
+}
+.recipe-head{width:100%; text-align:left; background:none; border:none; padding:14px 16px; display:flex; align-items:center; gap:12px; cursor:pointer; color:inherit; font:inherit;}
+.recipe-emoji{font-size:1.6rem; flex-shrink:0;}
+.recipe-info{flex:1;}
+.recipe-info h3{margin:0 0 3px; font-size:1.05rem;}
+.recipe-info .meta{font-size:.82rem; color:var(--ink-soft);}
+.chev{transition:transform .2s ease; flex-shrink:0; opacity:.6;}
+.recipe.open .chev{transform:rotate(180deg);}
+.recipe-body{max-height:0; overflow:hidden; transition:max-height .25s ease;}
+.recipe.open .recipe-body{max-height:600px;}
+.recipe-body-inner{padding:0 16px 16px;}
+.recipe-body-inner h4{margin:10px 0 6px; font-size:.85rem; text-transform:none; color:var(--olive); font-weight:600;}
+.recipe-body-inner ul, .recipe-body-inner ol{margin:0; padding-left:1.15em;}
+.recipe-body-inner li{margin-bottom:4px; font-size:.94rem;}
+.add-btn{
+  margin-top:12px; width:100%; padding:11px; border-radius:10px; border:none;
+  background:var(--brick); color:#fff; font-weight:600; font-size:.92rem; cursor:pointer;
+}
+.add-btn:active{opacity:.85;}
+
+.empty{text-align:center; padding:40px 20px; color:var(--ink-soft);}
+.empty svg{width:48px; height:48px; opacity:.4; margin-bottom:10px;}
+
+.list-item{
+  display:flex; align-items:center; gap:12px; background:var(--paper);
+  border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:8px;
+}
+.list-item input[type=checkbox]{width:20px; height:20px; accent-color:var(--olive); flex-shrink:0;}
+.list-item span{flex:1; font-size:.98rem;}
+.list-item.checked span{text-decoration:line-through; color:var(--ink-soft);}
+.list-item button{background:none; border:none; color:var(--ink-soft); font-size:1.1rem; cursor:pointer; padding:4px;}
+
+.addform{display:flex; gap:8px; margin-bottom:16px;}
+.addform input{flex:1; padding:12px 14px; border-radius:10px; border:1px solid var(--line); background:var(--paper); color:var(--ink); font:inherit; font-size:.98rem;}
+.addform button{padding:0 16px; border-radius:10px; border:none; background:var(--olive); color:var(--cream); font-weight:600; cursor:pointer;}
+
+.listbar{display:flex; gap:10px; margin-bottom:14px;}
+.listbar button{flex:1; padding:11px; border-radius:10px; border:1px solid var(--line); background:var(--paper); color:var(--ink); font-weight:600; font-size:.88rem; cursor:pointer;}
+.listbar button.primary{background:var(--brick); border-color:var(--brick); color:#fff;}
+
+.online-btn{
+  margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1px dashed rgba(255,255,255,.5);
+  background:transparent; color:var(--cream); font-weight:600; font-size:.85rem; cursor:pointer;
+}
+.online-btn:disabled{opacity:.6; cursor:default;}
+.recipe.online{border-color:var(--brick);}
+.recipe.online .recipe-info h3::after{content:' 🌐'; font-size:.8em;}
+
+@media (min-width:760px){
+  main{display:grid; grid-template-columns:1.2fr 1fr; gap:20px; align-items:start; padding-bottom:28px;}
+  .view{display:block !important;}
+  #searchWrap, .online-btn{display:block !important;}
+  .tabbar{display:none;}
+  header{padding-left:32px; padding-right:32px;}
+  main{padding-left:32px; padding-right:32px;}
+}
+
+.tabbar{
+  position:fixed; bottom:0; left:0; right:0; display:flex;
+  background:var(--paper); border-top:1px solid var(--line);
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+}
+.tabbar button{
+  flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:3px;
+  color:var(--ink-soft); font-size:.72rem; padding:6px 0; cursor:pointer; position:relative;
+}
+.tabbar button.active{color:var(--olive);}
+.tabbar svg{width:22px; height:22px;}
+.badge{
+  position:absolute; top:0; right:calc(50% - 20px); background:var(--brick); color:#fff;
+  font-size:.65rem; font-weight:700; border-radius:8px; min-width:16px; height:16px;
+  display:flex; align-items:center; justify-content:center; padding:0 4px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1 class="brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10h16M6 10V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4M5 10l1 10h12l1-10"/></svg>
+    Fogão
+  </h1>
+  <div class="searchwrap" id="searchWrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input id="search" type="text" placeholder="Pesquisar receitas ou ingredientes…">
+  </div>
+  <button id="onlineSearchBtn" class="online-btn" disabled>Pesquisar esta receita na internet</button>
+</header>
+
+<main>
+  <section id="view-recipes" class="view active"></section>
+
+  <section id="view-list" class="view">
+    <div class="addform">
+      <input id="newItem" type="text" placeholder="Adicionar item…">
+      <button id="addItemBtn">Adicionar</button>
+    </div>
+    <div id="listItems"></div>
+    <div class="listbar">
+      <button id="clearChecked">Limpar riscados</button>
+      <button id="emailBtn" class="primary">Enviar por email</button>
+    </div>
+  </section>
+</main>
+
+<nav class="tabbar">
+  <button id="tabRecipes" class="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V6a2 2 0 0 1 2-2h9l5 5v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 4v5h5"/></svg>
+    <span>Receitas</span>
+  </button>
+  <button id="tabList">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5h11M9 12h11M9 19h11M4 5h.01M4 12h.01M4 19h.01"/></svg>
+    <span>Lista de compras</span>
+    <span id="listBadge" class="badge" style="display:none;">0</span>
+  </button>
+</nav>
+
+<script>
+const RECIPES = [
+  {id:'bacalhau', emoji:'🐟', name:'Bacalhau à Brás', time:'30 min', tags:'bacalhau batata palha ovos cebola',
+    ingredients:['400g de bacalhau desfiado','500g de batata palha','4 ovos','1 cebola grande','2 dentes de alho','Azeitonas pretas','Salsa picada','Azeite, sal e pimenta'],
+    steps:['Demolhar o bacalhau e desfiar.','Refogar a cebola e o alho em azeite.','Juntar o bacalhau e deixar apurar 5 min.','Bater os ovos e juntar à mistura com a batata palha.','Mexer em lume brando até os ovos cozinharem.','Servir com azeitonas e salsa.']},
+  {id:'caldoverde', emoji:'🥬', name:'Caldo Verde', time:'40 min', tags:'couve batata chourico',
+    ingredients:['1 kg de batata','300g de couve galega','1 chouriço','1 cebola','2 dentes de alho','Azeite e sal'],
+    steps:['Cozer as batatas, cebola e alho em água com sal.','Triturar até obter um puré.','Juntar a couve cortada fina e o chouriço às rodelas.','Deixar ferver 5 min.','Servir com um fio de azeite.']},
+  {id:'francesinha', emoji:'🥪', name:'Francesinha', time:'50 min', tags:'sandes carne queijo molho',
+    ingredients:['Pão de forma','Fatias de fiambre','Linguiça e salsicha fresca','Bife de vaca','Queijo fatiado','Molho de tomate e cerveja','1 ovo (opcional)'],
+    steps:['Grelhar as carnes.','Montar a sandes com pão, carnes e fiambre.','Cobrir com queijo e levar ao forno até derreter.','Preparar o molho de tomate e cerveja em lume brando.','Regar a francesinha com o molho quente.']},
+  {id:'bifanas', emoji:'🥖', name:'Bifanas', time:'25 min (+marinar)', tags:'porco pao alho',
+    ingredients:['500g de febras de porco','4 dentes de alho','1 folha de louro','Vinho branco','Colorau, sal e pimenta','Papo-secos'],
+    steps:['Marinar a carne com alho, louro, vinho e temperos por 2h.','Grelhar as febras na frigideira com o marinado.','Servir dentro do papo-seco com um pouco do molho.']},
+  {id:'arrozpato', emoji:'🦆', name:'Arroz de Pato', time:'1h30', tags:'pato arroz chourico forno',
+    ingredients:['1 pato','2 chávenas de arroz','1 chouriço','1 cebola','Presunto ou bacon','Sal, pimenta e louro'],
+    steps:['Cozer o pato com cebola e louro até ficar tenro.','Desfiar a carne e reservar o caldo.','Cozinhar o arroz no caldo do pato.','Misturar o arroz com o pato desfiado numa travessa.','Cobrir com rodelas de chouriço e levar ao forno a alourar.']},
+  {id:'pasteis', emoji:'🍮', name:'Pastéis de Nata', time:'45 min', tags:'sobremesa doce ovos massa folhada',
+    ingredients:['1 rolo de massa folhada','500ml de leite','6 gemas','250g de açúcar','1 colher de farinha maisena','Casca de limão e canela'],
+    steps:['Forrar formas de pastéis com a massa folhada.','Ferver o leite com açúcar, limão e canela.','Juntar a maisena dissolvida e depois as gemas fora do lume.','Coar e encher as formas.','Levar a forno bem quente até dourar no topo.']},
+  {id:'acorda', emoji:'🦐', name:'Açorda de Marisco', time:'35 min', tags:'marisco pao coentros',
+    ingredients:['400g de miolo de camarão','Pão alentejano duro','4 dentes de alho','Coentros frescos','4 ovos','Azeite e sal'],
+    steps:['Preparar um caldo com as cascas do camarão.','Refogar o alho em azeite e juntar o caldo coado.','Juntar o pão às postas e desfazer em lume brando.','Juntar o camarão e os coentros picados.','Envolver os ovos batidos mexendo até cozinharem.']},
+  {id:'feijoada', emoji:'🍲', name:'Feijoada à Transmontana', time:'1h20', tags:'feijao carne enchidos couve',
+    ingredients:['500g de feijão vermelho','300g de entrecosto','1 chouriço','1 orelheira','1 cebola','Couve lombarda','Tomate e louro'],
+    steps:['Cozer o feijão e as carnes em separado.','Refogar cebola, tomate e louro.','Juntar as carnes cozidas e o feijão ao refogado.','Adicionar a couve cortada e deixar apurar 15 min.']}
+];
+
+let shoppingList = JSON.parse(localStorage.getItem('fogao-list') || '[]');
+function saveList(){ localStorage.setItem('fogao-list', JSON.stringify(shoppingList)); }
+
+const viewRecipes = document.getElementById('view-recipes');
+const viewList = document.getElementById('view-list');
+const tabRecipes = document.getElementById('tabRecipes');
+const tabList = document.getElementById('tabList');
+const searchInput = document.getElementById('search');
+
+let aiRecipes = [];
+
+function renderRecipes(filter){
+  const q = (filter||'').trim().toLowerCase();
+  const pool = [...aiRecipes, ...RECIPES];
+  const matches = pool.filter(r => !q || r.name.toLowerCase().includes(q) || r.tags.includes(q) || r.ingredients.some(i=>i.toLowerCase().includes(q)));
+
+  document.getElementById('onlineSearchBtn').disabled = !q;
+
+  if(!matches.length){
+    viewRecipes.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <div>Sem receitas para "${q}"<br>Experimenta pesquisar na internet acima.</div></div>`;
+    return;
+  }
+  viewRecipes.innerHTML = matches.map(r => `
+    <div class="recipe ${r.online?'online':''}" id="card-${r.id}">
+      <button class="recipe-head" data-id="${r.id}">
+        <span class="recipe-emoji">${r.emoji}</span>
+        <span class="recipe-info"><h3>${r.name}</h3><span class="meta">${r.time}</span></span>
+        <svg class="chev" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="recipe-body">
+        <div class="recipe-body-inner">
+          <h4>Ingredientes</h4>
+          <ul>${r.ingredients.map(i=>`<li>${i}</li>`).join('')}</ul>
+          <h4>Preparação</h4>
+          <ol>${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+          <button class="add-btn" data-id="${r.id}">Adicionar ingredientes à lista</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+async function searchOnline(){
+  const q = searchInput.value.trim();
+  const btn = document.getElementById('onlineSearchBtn');
+  if(!q || btn.disabled) return;
+  const original = btn.textContent;
+  btn.textContent = 'A pesquisar…'; btn.disabled = true;
+  try{
+    const sample = (typeof claude !== 'undefined') ? await claude.use('sample') : null;
+    if(!sample){ btn.textContent = 'Pesquisa online indisponível aqui'; setTimeout(()=>{btn.textContent=original; btn.disabled=false;},2200); return; }
+    const result = await sample.json(
+      `Dá-me uma receita de cozinha (portuguesa ou internacional) para "${q}". `+
+      `Responde APENAS com JSON válido, sem markdown, neste formato exato: `+
+      `{"name":"nome da receita","time":"tempo aproximado","ingredients":["ingrediente 1","ingrediente 2"],"steps":["passo 1","passo 2"]}`
+    );
+    if(result && result.name && Array.isArray(result.ingredients)){
+      aiRecipes.unshift({
+        id:'ai-'+Date.now(), emoji:'🌐', name:result.name, time:result.time||'',
+        tags:q.toLowerCase(), ingredients:result.ingredients, steps:result.steps||[], online:true
+      });
+      renderRecipes(searchInput.value);
+      btn.textContent = 'Receita encontrada ✓';
+    } else {
+      btn.textContent = 'Sem resultado, tenta reformular';
+    }
+  }catch(e){
+    btn.textContent = 'Erro na pesquisa — tenta de novo';
+  } finally {
+    setTimeout(()=>{ btn.textContent = original; btn.disabled = !searchInput.value.trim(); }, 2200);
+  }
+}
+document.getElementById('onlineSearchBtn').addEventListener('click', searchOnline);
+
+viewRecipes.addEventListener('click', (e)=>{
+  const head = e.target.closest('.recipe-head');
+  if(head){
+    document.getElementById('card-'+head.dataset.id).classList.toggle('open');
+    return;
+  }
+  const addBtn = e.target.closest('.add-btn');
+  if(addBtn){
+    const r = RECIPES.find(x=>x.id===addBtn.dataset.id);
+    r.ingredients.forEach(i=>{
+      if(!shoppingList.some(li=>li.text.toLowerCase()===i.toLowerCase())) shoppingList.push({text:i, checked:false});
+    });
+    saveList(); renderList(); renderBadge();
+    addBtn.textContent = 'Adicionado ✓';
+    setTimeout(()=>{ addBtn.textContent = 'Adicionar ingredientes à lista'; }, 1400);
+  }
+});
+
+searchInput.addEventListener('input', ()=>renderRecipes(searchInput.value));
+
+function renderList(){
+  const listEl = document.getElementById('listItems');
+  if(!shoppingList.length){
+    listEl.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5h11M9 12h11M9 19h11M4 5h.01M4 12h.01M4 19h.01"/></svg>
+      <div>A lista está vazia</div></div>`;
+    return;
+  }
+  listEl.innerHTML = shoppingList.map((item,idx)=>`
+    <div class="list-item ${item.checked?'checked':''}">
+      <input type="checkbox" data-idx="${idx}" ${item.checked?'checked':''}>
+      <span>${item.text}</span>
+      <button data-remove="${idx}" aria-label="Remover">✕</button>
+    </div>`).join('');
+}
+
+function renderBadge(){
+  const n = shoppingList.filter(i=>!i.checked).length;
+  const badge = document.getElementById('listBadge');
+  badge.style.display = n ? 'flex' : 'none';
+  badge.textContent = n;
+}
+
+document.getElementById('listItems').addEventListener('click', (e)=>{
+  if(e.target.matches('input[type=checkbox]')){
+    shoppingList[e.target.dataset.idx].checked = e.target.checked;
+    saveList(); renderList(); renderBadge();
+  }
+  const rm = e.target.closest('[data-remove]');
+  if(rm){
+    shoppingList.splice(rm.dataset.remove,1);
+    saveList(); renderList(); renderBadge();
+  }
+});
+
+document.getElementById('addItemBtn').addEventListener('click', addManualItem);
+document.getElementById('newItem').addEventListener('keydown', (e)=>{ if(e.key==='Enter') addManualItem(); });
+function addManualItem(){
+  const input = document.getElementById('newItem');
+  const val = input.value.trim();
+  if(!val) return;
+  shoppingList.push({text:val, checked:false});
+  input.value='';
+  saveList(); renderList(); renderBadge();
+}
+
+document.getElementById('clearChecked').addEventListener('click', ()=>{
+  shoppingList = shoppingList.filter(i=>!i.checked);
+  saveList(); renderList(); renderBadge();
+});
+
+document.getElementById('emailBtn').addEventListener('click', ()=>{
+  if(!shoppingList.length){ return; }
+  const body = shoppingList.map(i => (i.checked ? '[x] ' : '[ ] ') + i.text).join('%0D%0A');
+  const subject = encodeURIComponent('Lista de Compras');
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+});
+
+function switchTab(tab){
+  const isRecipes = tab==='recipes';
+  viewRecipes.classList.toggle('active', isRecipes);
+  viewList.classList.toggle('active', !isRecipes);
+  tabRecipes.classList.toggle('active', isRecipes);
+  tabList.classList.toggle('active', !isRecipes);
+  document.getElementById('searchWrap').style.display = isRecipes ? 'block' : 'none';
+}
+tabRecipes.addEventListener('click', ()=>switchTab('recipes'));
+tabList.addEventListener('click', ()=>switchTab('list'));
+
+renderRecipes('');
+renderList();
+renderBadge();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
